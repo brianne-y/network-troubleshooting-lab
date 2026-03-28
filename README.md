@@ -1,174 +1,193 @@
+
 # Network Troubleshooting Lab
 
-Built a network troubleshooting lab in Microsoft Azure to practice systematic diagnosis of common connectivity issues. Simulated 5 real-world failure scenarios — DNS misconfigurations, disabled adapters, subnet mismatches, latency diagnosis, and DHCP failures — and resolved each using core networking tools.
+## What is this project?
 
-## Tools Used
+I built this lab to get hands-on experience with the diagnostic process used in professional IT support. Instead of just memorizing commands, I wanted to actually break things on purpose and fix them — the way real troubleshooting works.
 
-- Microsoft Azure (Virtual Machines / IaaS)
-- Windows Server 2022
-- Command Prompt networking utilities (ipconfig, ping, nslookup, tracert, netstat)
-- Remote Desktop Protocol (RDP)
+This project demonstrates how I systematically diagnose and resolve common network failures using core command-line tools.
 
----
+## The Tools I Used
 
-## Phase 1: Azure VM Deployment
-
-Deployed a Windows Server VM in Azure to serve as the troubleshooting environment.
-
-![VM Deployment In Progress](img/01.png)
-*Azure deployment in progress — provisioning VM resources*
-
-![VM Deployment Complete](img/02.png)
-*Deployment complete — VM successfully created in the NetworkLab resource group*
-
-![VM Overview Running](img/03.png)
-*VM overview showing status "Running" with public IP assigned*
+- **Microsoft Azure:** My cloud environment where the server lives.
+- **Windows Server 2022:** The operating system I troubleshot.
+- **Command Prompt Utilities:** ipconfig, ping, nslookup, tracert, and netstat.
+- **Remote Desktop (RDP):** How I connected to the server from my own computer.
 
 ---
 
-## Phase 2: Core Networking Commands
+## What I Did (Step-by-Step)
 
-Practiced the five essential networking commands used daily in IT support.
+### 1. Building the Lab Environment
 
-### ipconfig /all — Network Identity Check
+I started by deploying a Windows Server VM in Azure. This gave me a controlled environment to intentionally cause network failures and practice resolving them without affecting any real systems.
 
-![ipconfig /all](img/04.png)
-*Baseline network configuration showing IPv4 address (10.0.0.5), subnet mask, default gateway (10.0.0.1), and DNS server*
-
-### Three-Ping Sequence — Connectivity Testing
-
-![Three Ping Sequence](img/05.png)
-*Testing connectivity at each layer: gateway → external IP (8.8.8.8) → domain name (google.com)*
-
-### nslookup & tracert — DNS and Route Testing
-
-![nslookup and tracert](img/06.png)
-*nslookup resolving google.com through both default and Google's DNS; tracert showing the path to destination*
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/01-phase1-vm-deployment-in-progress.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/02-phase1-vm-deployment-complete.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>VM deployment in progress</em></td>
+    <td align="center"><em>Deployment complete and ready</em></td>
+  </tr>
+</table>
 
 ---
 
-## Scenario 1: DNS Failure
+### 2. Establishing a Baseline Configuration
 
-**The Problem:** User reports "I can't get to any websites."
+Before breaking anything, I documented the working network configuration. This is critical — you can't fix what's broken if you don't know what "working" looks like.
 
-**Diagnosis:**
-- Ping to 8.8.8.8 succeeded (internet connection works)
-- Ping to google.com failed (DNS resolution broken)
-- nslookup confirmed the configured DNS server (1.2.3.4) was unreachable
-
-**Resolution:** Corrected DNS server settings in adapter properties and flushed the DNS cache with `ipconfig /flushdns`.
-
-![DNS Original Settings](img/07.png)
-*Original settings — "Obtain DNS server address automatically" selected*
-
-![DNS Intentionally Broken](img/08.png)
-*Breaking DNS — set preferred DNS server to fake address 1.2.3.4*
-
-![Browser Can't Reach Google](img/09.png)
-*Result — browser shows "can't reach this page" with DNS_PROBE error*
-
-![Ping Diagnosis](img/10.png)
-*Diagnosing the issue — ping to 8.8.8.8 works, but ping to google.com fails*
-
-![nslookup Confirms DNS Issue](img/11.png)
-*nslookup confirms it — query to 1.2.3.4 times out, but query to 8.8.8.8 resolves successfully*
-
-![DNS Flushed and Fixed](img/12.png)
-*Fixed — ran ipconfig /flushdns and ping to google.com now succeeds*
-
-![Google Loads Successfully](img/13.png)
-*Verified — Google homepage loads successfully*
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/04-phase2-ipconfig-all-baseline.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/05-phase2-three-ping-sequence.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Baseline: ipconfig /all output</em></td>
+    <td align="center"><em>Three-ping sequence confirming connectivity</em></td>
+  </tr>
+</table>
 
 ---
 
-## Scenario 2: Disabled Network Adapter
+### 3. Scenario 1: DNS Failure
 
-**The Problem:** User reports "My computer has no network connection at all."
+I simulated a DNS misconfiguration by pointing the server to a non-existent DNS address (1.2.3.4). This is one of the most common issues reported to help desks: "I can't get to any websites."
 
-**Diagnosis:**
-- ipconfig shows "Media disconnected"
-- Ping returns "General failure" (not "Request timed out")
-- Network adapter is disabled
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/07-scenario1-dns-original-settings.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/08-scenario1-dns-broken-1234.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Original DNS settings (automatic)</em></td>
+    <td align="center"><em>Misconfigured DNS (pointing to 1.2.3.4)</em></td>
+  </tr>
+</table>
 
-**Resolution:** Re-enabled the network adapter. In this case, had to deploy a new VM to recover RDP access.
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/10-scenario1-ping-diagnosis-dns-failure.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/11-scenario1-nslookup-confirms-dns-issue.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Diagnosis: IP ping works, domain ping fails</em></td>
+    <td align="center"><em>nslookup confirms DNS is unreachable</em></td>
+  </tr>
+</table>
 
-![Disable Adapter Warning](img/14.png)
-*Disabling the network adapter — Windows warning that it will stop functioning*
-
-![RDP Connection Lost](img/15.png)
-*Result — RDP connection immediately lost, "Preparing to reconnect..."*
-
-![New VM Recovery](img/16.png)
-*Recovery — deployed a new VM to regain access (lesson learned: use Azure Run Command)*
-
----
-
-## Scenario 3: Wrong Subnet
-
-**The Problem:** User reports "I can't reach the company server or shared drives."
-
-**Diagnosis:**
-- ipconfig shows IP address on wrong network range (192.168.50.100 instead of 10.0.0.x)
-- Ping to gateway fails
-- Computer is in the "wrong neighborhood"
-
-**Resolution:** Changed IP settings back to "Obtain an IP address automatically" using Azure Run Command.
-
-![Wrong Subnet Configuration](img/17.png)
-*Breaking the subnet — manually set IP to 192.168.50.100, completely different range from gateway (10.0.0.1)*
-
-![Connection Lost Wrong Subnet](img/18.png)
-*Result — RDP connection lost due to subnet mismatch*
-
-![Azure Run Command Fix](img/19.png)
-*Fix — used Azure Portal's Run Command to execute PowerShell script and reset network adapter to DHCP*
-
-![VM Recovered](img/20.png)
-*Recovery complete — VM back online after re-deployment*
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/12-scenario1-dns-flushed-fixed.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/13-scenario1-google-loads-success.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Resolution: DNS flushed, connectivity restored</em></td>
+    <td align="center"><em>Verified: Google loads successfully</em></td>
+  </tr>
+</table>
 
 ---
 
-## Scenario 4: Slow Internet (Latency Diagnosis)
+### 4. Scenario 2: Disabled Network Adapter
 
-**The Problem:** User reports "Everything is loading really slowly."
+I disabled the network adapter to simulate a hardware or driver failure. This immediately terminated my RDP session — demonstrating why it's important to have an alternate recovery method.
 
-**Diagnosis:**
-- Extended ping (20 packets) to measure response times and packet loss
-- tracert to identify which hop is causing the bottleneck
-
-**Resolution:** Network performance was normal in this test — documented baseline metrics for comparison.
-
-![Extended Ping and Tracert](img/21.png)
-*Latency diagnosis — ping google.com -n 20 shows consistent 5ms response, 0% packet loss; tracert shows 14 hops to destination*
-
----
-
-## Scenario 5: DHCP Failure
-
-**The Problem:** User reports "I can't get an IP address" (shows 169.254.x.x or 0.0.0.0).
-
-**Diagnosis:**
-- ipconfig shows APIPA address (169.254.x.x) or no IP
-- DHCP server not responding or unreachable
-
-**Resolution:** Released and renewed the IP address with `ipconfig /release && ipconfig /renew`.
-
-![DHCP Release Reconnecting](img/22.png)
-*DHCP release — connection temporarily lost as IP is released, RDP attempting to reconnect*
-
-![DHCP Renew Success](img/23.png)
-*DHCP renew successful — new IP address (10.0.0.5) obtained from DHCP server*
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/14-scenario2-disable-adapter-warning.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/15-scenario2-rdp-connection-lost.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Warning before disabling adapter</em></td>
+    <td align="center"><em>RDP connection immediately lost</em></td>
+  </tr>
+</table>
 
 ---
 
-## Key Takeaways
+### 5. Scenario 3: Wrong Subnet Configuration
 
-- **Systematic troubleshooting wins:** Checking each network layer in order (adapter → gateway → internet → DNS) isolates problems faster than random guessing
-- **The ping sequence is essential:** Gateway → 8.8.8.8 → domain name — when one step fails but the previous worked, you've found exactly where the problem is
-- **Recognize the symptoms:**
-  - 169.254.x.x = DHCP failure (APIPA address)
-  - "General failure" = adapter/hardware issue
-  - "Request timed out" = connectivity/routing issue
-  - IP works but domain doesn't = DNS problem
-- **Document before you break:** Always note original settings before making changes — it's your undo button
-- **Azure Run Command is a lifesaver:** When you lock yourself out of RDP, you can still run commands through the Azure Portal
+I manually assigned an IP address (192.168.50.100) that was on a completely different network range than the gateway (10.0.0.1). This simulates what happens when someone incorrectly configures a static IP.
+
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/17-scenario3-wrong-subnet-192168.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/18-scenario3-connection-lost.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Misconfigured IP on wrong subnet</em></td>
+    <td align="center"><em>Connection lost due to subnet mismatch</em></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/19-scenario3-azure-run-command-fix.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/20-scenario3-vm-recovered.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Recovery via Azure Run Command</em></td>
+    <td align="center"><em>VM successfully restored</em></td>
+  </tr>
+</table>
+
+---
+
+### 6. Scenario 4: Latency Diagnosis
+
+I used extended ping tests and traceroute to measure network performance. This is the diagnostic approach when users report that "everything is slow."
+
+<img src="img/Network Troubleshooting Lab/21-scenario4-extended-ping-tracert.png" width="600"/>
+
+*Extended ping (20 packets): 0% loss, 5ms average | Traceroute: 14 hops to destination*
+
+---
+
+### 7. Scenario 5: DHCP Failure
+
+I released and renewed the IP address to simulate DHCP issues. In a real environment, a 169.254.x.x address indicates the DHCP server is unreachable.
+
+<table>
+  <tr>
+    <td><img src="img/Network Troubleshooting Lab/22-scenario5-dhcp-release-reconnecting.png" width="400"/></td>
+    <td><img src="img/Network Troubleshooting Lab/23-scenario5-dhcp-renew-success.png" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Connection interrupted during release</em></td>
+    <td align="center"><em>New IP successfully obtained</em></td>
+  </tr>
+</table>
+
+---
+
+## Key Concepts I Focused On
+
+- **Systematic Diagnosis:** Checking each network layer in order (adapter → gateway → internet → DNS) to isolate the problem.
+- **Pattern Recognition:** Learning what specific error messages indicate (169.254.x.x = DHCP failure, "General failure" = adapter issue).
+- **Documentation:** Recording baseline configurations before making changes.
+- **Remote Recovery:** Using Azure Run Command when locked out of RDP.
+
+---
+
+## What I Learned
+
+- How to methodically diagnose network issues instead of guessing.
+- How to interpret command output to identify the exact point of failure.
+- **Most importantly:** How to recover from situations where I accidentally locked myself out of the system.
+
+---
+
+## Conclusion: Why This Lab Matters
+
+Building this environment taught me that network troubleshooting is not about memorizing solutions — it's about understanding layers. Each command tests a specific part of the network stack, and when one test fails but the previous one succeeded, you've found exactly where the problem is.
+
+Through this project, I gained confidence in:
+
+1. **The Diagnostic Process:** I now approach network issues systematically instead of randomly trying fixes.
+2. **Command-Line Proficiency:** I'm comfortable using ipconfig, ping, nslookup, tracert, and netstat to gather diagnostic information.
+3. **Real-World Problem Solving:** I intentionally broke things and fixed them — which is exactly how troubleshooting works in production environments.
+
+This lab has prepared me to walk into a help desk role and confidently diagnose the most common network issues users encounter.
